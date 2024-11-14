@@ -1,10 +1,12 @@
 from django.db import models
-from mptt.models import MPTTModel, TreeForeignKey
+from mptt.models import MPTTModel
+from restaurants.models import Restaurant
 
 # Create your models here.
 
 class MenuCategory(models.Model):
     name = models.CharField(max_length=255)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='menu_categories', default=1)
 
     class Meta:
         verbose_name_plural = 'MenuCategories'
