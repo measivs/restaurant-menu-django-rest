@@ -1,7 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 
-from .filters import SubMenuCategoryFilter
 from .models import MenuCategory, SubMenuCategory, Dish, Ingredient
 from .serializers import MenuCategorySerializer, SubMenuCategorySerializer, DishSerializer, IngredientSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -28,6 +27,21 @@ class SubMenuCategoryViewSet(viewsets.ModelViewSet):
     queryset = SubMenuCategory.objects.all()
     serializer_class = SubMenuCategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = SubMenuCategory.objects.all()
+
+        # Filter by parent category
+        menu_category = self.request.query_params.get('menu_category', None)
+        if menu_category:
+            queryset = queryset.filter(menu_category=menu_category)
+
+        # Filter by dish name
+        dishes = self.request.query_params.get('dishes', None)
+        if dishes:
+            queryset = queryset.filter(dishes__name__icontains=dishes)
+
+        return queryset
 
     def perform_create(self, serializer):
         restaurant = self.request.user.restaurants.first()
